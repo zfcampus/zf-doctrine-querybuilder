@@ -2,16 +2,17 @@
 
 namespace ZF\Doctrine\QueryBuilder\Query\Provider;
 
+use ZF\Apigility\Doctrine\Server\Query\Provider\AbstractQueryProvider;
 use ZF\Apigility\Doctrine\Server\Query\Provider\QueryProviderInterface;
 use ZF\Apigility\Doctrine\Server\Paginator\Adapter\DoctrineOdmAdapter;
 use DoctrineModule\Persistence\ObjectManagerAwareInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManger\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use ZF\Rest\ResourceEvent;
 
-class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
+class DefaultOdm extends AbstractQueryProvider implements QueryProviderInterface, ServiceLocatorAwareInterface
 {
     /**
      * @var ServiceLocatorInterface
@@ -71,14 +72,14 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
      */
     public function createQuery(ResourceEvent $event, $entityClass, $parameters)
     {
-        $request = $this->getServiceManager()->get('Application')->getRequest()->getQuery()->toArray();
+        $request = $this->getServiceLocator()->getServiceLocator()->get('Application')->getRequest()->getQuery()->toArray();
 
         $queryBuilder = $this->getObjectManager()->createQueryBuilder();
         $queryBuilder->find($entityClass);
 
         if (isset($request['filter'])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getAllMetadata();
-            $filterManager = $this->getServiceLocator()->get('ZfDoctrineQueryBuilderFilterManagerOrm');
+            $filterManager = $this->getServiceLocator()->getServiceLocator()->get('ZfDoctrineQueryBuilderFilterManagerOrm');
             $filterManager->filter(
                 $queryBuilder,
                 $metadata[0],
@@ -88,7 +89,7 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
 
         if (isset($request['order-by'])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getAllMetadata();
-            $orderByManager = $this->getServiceLocator()->get('ZfDoctrineQueryBuilderOrderByManagerOrm');
+            $orderByManager = $this->getServiceLocator()->getServiceLocator()->get('ZfDoctrineQueryBuilderOrderByManagerOrm');
             $orderByManager->orderBy(
                 $queryBuilder,
                 $metadata[0],
