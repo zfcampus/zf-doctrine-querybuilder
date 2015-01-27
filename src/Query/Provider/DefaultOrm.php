@@ -13,7 +13,7 @@ use Zend\ServiceManager\ServiceLocatorAwareTrait;
  * @package ZF\Apigility\Doctrine\Server\Query\Provider
  */
 class DefaultOrm extends DefaultOrmBase implements ServiceLocatorAwareInterface
-{  
+{
     use ServiceLocatorAwareTrait;
 
     /**
