@@ -52,7 +52,11 @@ class DefaultOdm extends ZFApigilityDefaultOdm implements ServiceLocatorAwareInt
 
         if (isset($request['filter'])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getAllMetadata();
-            $filterManager = $this->getServiceLocator()->get('ZfDoctrineQueryBuilderFilterManagerOrm');
+            $filterManager = $this->
+                getServiceLocator()->
+                getServiceLocator()->
+                get('ZfDoctrineQueryBuilderFilterManagerOrm');
+
             $filterManager->filter(
                 $queryBuilder,
                 $metadata[0],
@@ -62,7 +66,11 @@ class DefaultOdm extends ZFApigilityDefaultOdm implements ServiceLocatorAwareInt
 
         if (isset($request['order-by'])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getAllMetadata();
-            $orderByManager = $this->getServiceLocator()->get('ZfDoctrineQueryBuilderOrderByManagerOrm');
+            $orderByManager = $this->
+                getServiceLocator()->
+                getServiceLocator()->
+                get('ZfDoctrineQueryBuilderOrderByManagerOrm');
+
             $orderByManager->orderBy(
                 $queryBuilder,
                 $metadata[0],
