@@ -33,12 +33,14 @@
         "doctrine/doctrine-orm-module": "0.*@dev",
         "phpunit/phpunit": "~4.1",
         "zendframework/zend-test": "~2.3",
-        "zfcampus/zf-apigility-provider": "~1.0"
+        "zfcampus/zf-apigility-provider": "~1.0",
+        "zfcampus/zf-apigility-doctrine": "0.3.*"
     },
     "suggest": {
         "ext/mongo": "Mongo extension, if using ODM",
         "doctrine/doctrine-mongo-odm-module": "v0.*, if you wish to use the Doctrine ODM",
-        "doctrine/doctrine-orm-module": "v0.*, if you wish to use the Doctrine ORM"
+        "doctrine/doctrine-orm-module": "v0.*, if you wish to use the Doctrine ORM",
+        "zfcampus/zf-apigility-doctrine": "0.3., to use the included Query Providers"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
