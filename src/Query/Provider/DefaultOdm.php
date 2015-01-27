@@ -48,7 +48,7 @@ class DefaultOdm extends ZFApigilityDefaultOdm implements ServiceLocatorAwareInt
             return $queryBuilder;
         }
 
-        $request = $event->getRequest();
+        $request = $event->getRequest()->getQuery()->toArray();
 
         if (isset($request['filter'])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getAllMetadata();
