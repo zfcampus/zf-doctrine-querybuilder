@@ -43,7 +43,7 @@ class DefaultOdm extends ZFApigilityDefaultOdm implements ServiceLocatorAwareInt
      */
     public function createQuery(ResourceEvent $event, $entityClass, $parameters)
     {
-        $queryBuilder = parent::createQuery();
+        $queryBuilder = parent::createQuery($event, $entityClass, $parameters);
         if ($queryBuilder instanceof ApiProblem) {
             return $queryBuilder;
         }
