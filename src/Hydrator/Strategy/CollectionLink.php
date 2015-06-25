@@ -14,8 +14,9 @@ use Zend\Filter\FilterChain;
  *
  * @returns Link
  */
-class CollectionLink extends AbstractCollectionStrategy
-    implements StrategyInterface, ServiceManagerAwareInterface
+class CollectionLink extends AbstractCollectionStrategy implements
+    StrategyInterface,
+    ServiceManagerAwareInterface
 {
     protected $serviceManager;
 
@@ -34,7 +35,8 @@ class CollectionLink extends AbstractCollectionStrategy
     public function extract($value)
     {
         $config = $this->getServiceManager()->get('Config');
-        if (!method_exists($value, 'getTypeClass') or !isset($config['zf-hal']['metadata_map'][$value->getTypeClass()->name])) {
+        if (!method_exists($value, 'getTypeClass')
+            || !isset($config['zf-hal']['metadata_map'][$value->getTypeClass()->name])) {
             return;
         }
 
