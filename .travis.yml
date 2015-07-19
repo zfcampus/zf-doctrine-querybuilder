@@ -32,7 +32,6 @@ install:
   - travis_retry composer install --no-interaction --ignore-platform-reqs --prefer-source
 
 before_script:
-  - phpenv config-add .travis-config.ini
   - pecl install -f mongo-1.4.1
 
 script:
