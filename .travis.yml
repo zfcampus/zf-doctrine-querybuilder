@@ -29,7 +29,6 @@ notifications:
 before_install:
   - if [[ $EXECUTE_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
   - composer self-update
-  - chmod -R +rwX test/asset/data
 
 install:
   - travis_retry composer install --no-interaction --ignore-platform-reqs --prefer-source
