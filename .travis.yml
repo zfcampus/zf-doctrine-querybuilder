@@ -1,25 +1,40 @@
+sudo: false
+
 language: php
 
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - hhvm
+services:
+  - mongodb
 
 matrix:
+  fast_finish: true
+  include:
+    - php: 5.5
+      env:
+        EXECUTE_CS_CHECK=true
+        INSTALL_PECL_MONGO=true
+    - php: 5.6
+      env:
+        EXECUTE_COVERAGE=true
+        INSTALL_PECL_MONGO=true
+    - php: 7
+    - php: hhvm
   allow_failures:
-      - php: hhvm
+    - php: 7
+    - php: hhvm
 
-before_script:
-  - phpenv config-add .travis-config.ini
+notifications:
+  irc: "irc.freenode.org#apigility-dev"
+  email: false
+
+before_install:
+  - if [[ $EXECUTE_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
+  - if [[ $INSTALL_PECL_MONGO == 'true' ]]; then pecl install -f mongo-1.4.1 || return 0 ; fi
   - composer self-update
-  - pecl install -f mongo-1.4.1
-  - composer install --dev --prefer-source --no-interaction
+
+install:
+  - travis_retry composer install --no-interaction --ignore-platform-reqs --prefer-source
 
 script:
+  - mkdir -p build/logs
   - ./vendor/bin/phpunit
-  - ./vendor/bin/phpcs --standard=PSR2 --ignore=test/Bootstrap.php --ignore=test/Filter/data --ignore=test/OrderBy/data --ignore=test/Filter/module --ignore=test/OrderBy/module --ignore=test/code-coverage src test
-
-services: 
-  - mongodb
+  - if [[ $EXECUTE_CS_CHECK == 'true' ]]; then ./vendor/bin/phpcs --standard=PSR2 --ignore=test/Bootstrap.php src test; fi
