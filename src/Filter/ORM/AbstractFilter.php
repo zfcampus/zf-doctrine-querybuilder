@@ -55,11 +55,13 @@ abstract class AbstractFilter implements FilterInterface
                 settype($value, 'float');
                 break;
             case 'date':
+                // For dates set time to midnight
                 if ($value && ! $doNotTypecastDatetime) {
                     if (! $format) {
                         $format = 'Y-m-d';
                     }
                     $value = DateTime::createFromFormat($format, $value);
+                    $value = DateTime::createFromFormat('Y-m-d H:i:s', $value . ' 00:00:00');
                 }
                 break;
             case 'time':
