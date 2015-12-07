@@ -61,7 +61,7 @@ abstract class AbstractFilter implements FilterInterface
                         $format = 'Y-m-d';
                     }
                     $value = DateTime::createFromFormat($format, $value);
-                    $value = DateTime::createFromFormat('Y-m-d H:i:s', $value . ' 00:00:00');
+                    $value = DateTime::createFromFormat('Y-m-d H:i:s', $value->format('Y-m-d') . ' 00:00:00');
                 }
                 break;
             case 'time':
