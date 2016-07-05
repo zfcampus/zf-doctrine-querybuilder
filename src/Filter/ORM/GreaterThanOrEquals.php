@@ -26,6 +26,7 @@ class GreaterThanOrEquals extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        $field = '';
         if (false !== $option['alias']) {
             $field = $option['alias'] . '.';
         }
