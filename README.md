@@ -236,6 +236,7 @@ Joining Entities and Aliasing Queries
 
 There is an included ORM Query Type for Inner Join so for every filter type there is an optional `alias`.
 The default alias is 'row' and refers to the entity at the heart of the REST resource.  There is not a filter to add other entities to the return data.  That is, only the original target resource, by default 'row', will be returned regardless of what filters or order by are applied through this module.
+The alias can be ignored when it's value is set to false.
 
 Inner Join is not included by default in the ```zf-doctrine-querybuilder.global.php.dist```
 
@@ -349,6 +350,12 @@ Is Member Of:
 
 ```php
 array('type' => 'ismemberof', 'field' => 'fieldName', 'value' => 1)
+```
+
+Not Like (`%` is used as a wildcard):
+
+```php
+array('type' => 'notlike', 'field' => 'fieldName', 'value' => 'like%search')
 ```
 
 AndX:

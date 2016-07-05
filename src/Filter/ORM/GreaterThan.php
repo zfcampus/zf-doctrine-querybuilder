@@ -26,6 +26,11 @@ class GreaterThan extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $format = isset($option['format']) ? $option['format'] : null;
 
         $value = $this->typeCastField($metadata, $option['field'], $option['value'], $format);
@@ -34,7 +39,7 @@ class GreaterThan extends AbstractFilter
         $queryBuilder->$queryType(
             $queryBuilder
                 ->expr()
-                ->gt($option['alias'] . '.' . $option['field'], ':' . $parameter)
+                ->gt($field, ':' . $parameter)
         );
         $queryBuilder->setParameter($parameter, $value);
     }

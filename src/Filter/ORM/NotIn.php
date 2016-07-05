@@ -26,6 +26,11 @@ class NotIn extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $format = isset($option['format']) ? $option['format'] : null;
 
         $queryValues = array();
@@ -43,7 +48,7 @@ class NotIn extends AbstractFilter
         $queryBuilder->$queryType(
             $queryBuilder
                 ->expr()
-                ->notIn($option['alias'] . '.' . $option['field'], ':' . $parameter)
+                ->notIn($field, ':' . $parameter)
         );
         $queryBuilder->setParameter($parameter, $queryValues);
     }

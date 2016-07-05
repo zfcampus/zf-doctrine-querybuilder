@@ -26,6 +26,11 @@ class LessThan extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $format = null;
         if (isset($option['format'])) {
             $format = $option['format'];
@@ -37,7 +42,7 @@ class LessThan extends AbstractFilter
         $queryBuilder->$queryType(
             $queryBuilder
                 ->expr()
-                ->lt($option['alias'] . '.' . $option['field'], ":$parameter")
+                ->lt($field, ":$parameter")
         );
         $queryBuilder->setParameter($parameter, $value);
     }

@@ -26,6 +26,11 @@ class Between extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $format = isset($option['format']) ? $option['format'] : null;
 
         $from = $this->typeCastField($metadata, $option['field'], $option['from'], $format);
@@ -38,7 +43,7 @@ class Between extends AbstractFilter
             $queryBuilder
                 ->expr()
                 ->between(
-                    sprintf('%s.%s', $option['alias'], $option['field']),
+                    $field,
                     sprintf(':%s', $fromParameter),
                     sprintf(':%s', $toParameter)
                 )

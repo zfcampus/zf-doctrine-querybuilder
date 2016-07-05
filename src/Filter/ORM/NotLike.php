@@ -26,11 +26,16 @@ class NotLike extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $queryBuilder->$queryType(
             $queryBuilder
                 ->expr()
                 ->notlike(
-                    $option['alias'] . '.' . $option['field'],
+                    $field,
                     $queryBuilder->expr()->literal($option['value'])
                 )
         );

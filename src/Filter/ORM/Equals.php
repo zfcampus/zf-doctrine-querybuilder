@@ -26,6 +26,11 @@ class Equals extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $format = null;
         if (isset($option['format'])) {
             $format = $option['format'];
@@ -37,7 +42,7 @@ class Equals extends AbstractFilter
         $queryBuilder->$queryType(
             $queryBuilder
                 ->expr()
-                ->eq($option['alias'] . '.' . $option['field'], ':' . $parameter)
+                ->eq($field, ':' . $parameter)
         );
         $queryBuilder->setParameter($parameter, $value);
     }

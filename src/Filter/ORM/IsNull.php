@@ -26,10 +26,15 @@ class IsNull extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        if (false !== $option['alias']) {
+            $field = $option['alias'] . '.';
+        }
+        $field .= $option['field'];
+
         $queryBuilder->$queryType(
             $queryBuilder
                 ->expr()
-                ->isNull($option['alias'] . '.' . $option['field'])
+                ->isNull($field)
         );
     }
 }
