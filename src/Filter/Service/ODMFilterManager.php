@@ -6,16 +6,18 @@
 
 namespace ZF\Doctrine\QueryBuilder\Filter\Service;
 
+use RuntimeException;
 use ZF\ApiProblem\ApiProblem;
 use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\Exception;
+use Zend\ServiceManager\Exception\InvalidServiceException;
 use Doctrine\ODM\MongoDB\Query\Builder as QueryBuilder;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata as Metadata;
 
 class ODMFilterManager extends AbstractPluginManager
 {
     protected $invokableClasses = array();
+    protected $instanceOf = FilterInterface::class;
 
     public function filter(QueryBuilder $queryBuilder, Metadata $metadata, $filters)
     {
@@ -28,7 +30,7 @@ class ODMFilterManager extends AbstractPluginManager
 
             try {
                 $filter = $this->get(strtolower($option['type']), array($this));
-            } catch (Exception\ServiceNotFoundException $e) {
+            } catch (InvalidServiceException $e) {
                 // @codeCoverageIgnoreStart
                 return new ApiProblem(500, $e->getMessage());
             }
@@ -44,19 +46,29 @@ class ODMFilterManager extends AbstractPluginManager
      * @return void
      * @throws Exception\RuntimeException
      */
+    public function validate($filter)
+    {
+        if (! $filter instanceof $this->instanceOf) {
+            throw new InvalidServiceException(sprintf(
+                'Invalid plugin "%s" created; not an instance of %s',
+                get_class($filter),
+                $this->instanceOf
+            ));
+        }
+    }
+
+    /**
+     * @param mixed $filter
+     *
+     * @return void
+     * @throws Exception\RuntimeException
+     */
     public function validatePlugin($filter)
     {
-        if ($filter instanceof FilterInterface) {
-            // we're okay
-            return;
+        try {
+            $this->validate($filter);
+        } catch (InvalidServiceException $e) {
+            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
-
-        // @codeCoverageIgnoreStart
-        throw new Exception\RuntimeException(sprintf(
-            'Plugin of type %s is invalid; must implement %s\Plugin\PluginInterface',
-            (is_object($filter) ? get_class($filter) : gettype($filter)),
-            __NAMESPACE__
-        ));
-        // @codeCoverageIgnoreEnd
     }
 }

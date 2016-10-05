@@ -2,13 +2,10 @@
 
 namespace ZF\Doctrine\QueryBuilder\Query\Provider;
 
+use ZF\Apigility\Doctrine\Server\Query\Provider\AbstractQueryProvider;
 use ZF\Apigility\Doctrine\Server\Query\Provider\QueryProviderInterface;
-use ZF\Apigility\Doctrine\Server\Paginator\Adapter\DoctrineOrmAdapter;
-use DoctrineModule\Persistence\ObjectManagerAwareInterface;
-use Doctrine\Common\Persistence\ObjectManager;
-use Zend\Paginator\Adapter\AdapterInterface;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use ZF\Doctrine\QueryBuilder\Filter\Service\ORMFilterManager;
+use ZF\Doctrine\QueryBuilder\OrderBy\Service\ORMOrderByManager;
 use ZF\Rest\ResourceEvent;
 
 /**
@@ -16,81 +13,45 @@ use ZF\Rest\ResourceEvent;
  *
  * @package ZF\Apigility\Doctrine\Server\Query\Provider
  */
-class DefaultOrm implements ObjectManagerAwareInterface, QueryProviderInterface, ServiceLocatorAwareInterface
+class DefaultOrm extends AbstractQueryProvider implements QueryProviderInterface
 {
     /**
-     * @var ServiceLocatorInterface
+     * @var ORMFilterManager
      */
-    protected $serviceLocator = null;
-
+    private $filterManager;
     /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @var ORMOrderByManager
      */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
+    private $orderByManager;
+    /**
+     * @var array
+     */
+    private $options;
 
-        return $this;
+    public function __construct(ORMFilterManager $filterManager, ORMOrderByManager $orderByManager, array $options = [])
+    {
+        $this->filterManager = $filterManager;
+        $this->orderByManager = $orderByManager;
+        $this->options = $options;
     }
 
     /**
-     * Get service locator
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
-    }
-
-    /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * Set the object manager
-     *
-     * @param ObjectManager $objectManager
-     */
-    public function setObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
-     * Get the object manager
-     *
-     * @return ObjectManager
-     */
-    public function getObjectManager()
-    {
-        return $this->objectManager;
-    }
-
-    /**
-     * @param string $entityClass
-     * @param array  $parameters
+     * @param ResourceEvent $event
+     * @param string        $entityClass
+     * @param array         $parameters
      *
      * @return mixed This will return an ORM or ODM Query\Builder
      */
     public function createQuery(ResourceEvent $event, $entityClass, $parameters)
     {
-        $request = $this->getServiceLocator()
-            ->getServiceLocator()->get('Application')->getRequest()->getQuery()->toArray();
-
+        $request = $event->getRequest()->getQuery()->toArray();
         $queryBuilder = $this->getObjectManager()->createQueryBuilder();
         $queryBuilder->select('row')
             ->from($entityClass, 'row');
 
         if (isset($request[$this->getFilterKey()])) {
             $metadata = $this->getObjectManager()->getClassMetadata($entityClass);
-            $filterManager = $this->getServiceLocator()->getServiceLocator()
-                ->get('ZfDoctrineQueryBuilderFilterManagerOrm');
-            $filterManager->filter(
+            $this->filterManager->filter(
                 $queryBuilder,
                 $metadata,
                 $request[$this->getFilterKey()]
@@ -99,9 +60,7 @@ class DefaultOrm implements ObjectManagerAwareInterface, QueryProviderInterface,
 
         if (isset($request[$this->getOrderByKey()])) {
             $metadata = $this->getObjectManager()->getClassMetadata($entityClass);
-            $orderByManager = $this->getServiceLocator()->getServiceLocator()
-                ->get('ZfDoctrineQueryBuilderOrderByManagerOrm');
-            $orderByManager->orderBy(
+            $this->orderByManager->orderBy(
                 $queryBuilder,
                 $metadata,
                 $request[$this->getOrderByKey()]
@@ -112,44 +71,12 @@ class DefaultOrm implements ObjectManagerAwareInterface, QueryProviderInterface,
     }
 
     /**
-     * @param   $queryBuilder
-     *
-     * @return AdapterInterface
-     */
-    public function getPaginatedQuery($queryBuilder)
-    {
-        $adapter = new DoctrineOrmAdapter($queryBuilder->getQuery(), false);
-
-        return $adapter;
-    }
-
-    /**
-     * @param   $entityClass
-     *
-     * @return int
-     */
-    public function getCollectionTotal($entityClass)
-    {
-        $queryBuilder = $this->getObjectManager()->createQueryBuilder();
-        $cmf = $this->getObjectManager()->getMetadataFactory();
-        $entityMetaData = $cmf->getMetadataFor($entityClass);
-
-        $identifier = $entityMetaData->getIdentifier();
-        $queryBuilder->select('count(row.' . $identifier[0] . ')')
-            ->from($entityClass, 'row');
-
-        return (int) $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-    /**
      * @return string
      */
     protected function getFilterKey()
     {
-        $config = $this->getServiceLocator()->getServiceLocator()->get('Config');
-
-        if (isset($config['zf-doctrine-querybuilder-options']['filter_key'])) {
-            $filterKey = $config['zf-doctrine-querybuilder-options']['filter_key'];
+        if (isset($this->options['filter_key'])) {
+            $filterKey = $this->options['filter_key'];
         } else {
             $filterKey = 'filter';
         }
@@ -162,10 +89,8 @@ class DefaultOrm implements ObjectManagerAwareInterface, QueryProviderInterface,
      */
     protected function getOrderByKey()
     {
-        $config = $this->getServiceLocator()->getServiceLocator()->get('Config');
-
-        if (isset($config['zf-doctrine-querybuilder-options']['order_by_key'])) {
-            $orderByKey = $config['zf-doctrine-querybuilder-options']['order_by_key'];
+        if (isset($this->options['order_by_key'])) {
+            $orderByKey = $this->options['order_by_key'];
         } else {
             $orderByKey = 'order-by';
         }

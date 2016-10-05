@@ -6,21 +6,23 @@
 
 namespace ZF\Doctrine\QueryBuilder\OrderBy\Service;
 
+use RuntimeException;
 use ZF\Doctrine\QueryBuilder\OrderBy\OrderByInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\Exception;
+use Zend\ServiceManager\Exception\InvalidServiceException;
 use Doctrine\ODM\MongoDB\Query\Builder;
 
 class ODMOrderByManager extends AbstractPluginManager
 {
     protected $invokableClasses = array();
+    protected $instanceOf = OrderByInterface::class;
 
     public function orderBy(Builder $queryBuilder, $metadata, $orderBy)
     {
         foreach ($orderBy as $option) {
             if (! isset($option['type']) or ! $option['type']) {
                 // @codeCoverageIgnoreStart
-                throw new Exception\RuntimeException('Array element "type" is required for all orderby directives');
+                throw new RuntimeException('Array element "type" is required for all orderby directives');
             }
             // @codeCoverageIgnoreEnd
 
@@ -34,21 +36,31 @@ class ODMOrderByManager extends AbstractPluginManager
      * @param mixed $orderBy
      *
      * @return void
-     * @throws Exception\RuntimeException
+     * @throws InvalidServiceException
+     */
+    public function validate($orderBy)
+    {
+        if (! $orderBy instanceof $this->instanceOf) {
+            throw new InvalidServiceException(sprintf(
+                'Invalid plugin "%s" created; not an instance of %s',
+                get_class($orderBy),
+                $this->instanceOf
+            ));
+        }
+    }
+
+    /**
+     * @param mixed $orderBy
+     *
+     * @return void
+     * @throws RuntimeException
      */
     public function validatePlugin($orderBy)
     {
-        if ($orderBy instanceof OrderByInterface) {
-            // we're okay
-            return;
+        try {
+            $this->validate($orderBy);
+        } catch (InvalidServiceException $e) {
+            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
-
-        // @codeCoverageIgnoreStart
-        throw new Exception\RuntimeException(sprintf(
-            'Plugin of type %s is invalid; must implement %s\Plugin\PluginInterface',
-            (is_object($filter) ? get_class($filter) : gettype($filter)),
-            __NAMESPACE__
-        ));
-        // @codeCoverageIgnoreEnd
     }
 }

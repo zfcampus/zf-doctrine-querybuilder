@@ -50,12 +50,16 @@ Use With Apigility Doctrine
 To enable all filters you may override the default query providers in zf-apigility-doctrine.  Add this to your `zf-doctrine-querybuilder.global.php` config file and filters and order-by will be applied if they are in `$_GET['filter']` or `$_GET['order-by']` request.  These $_GET keys are customizable through `zf-doctrine-querybuilder-options`
 
 ```php
-'zf-apigility-doctrine-query-provider' => array(
-    'invokables' => array(
+'zf-apigility-doctrine-query-provider' => [
+    'factories' => [
+        'ZF\Doctrine\QueryBuilder\Query\Provider\DefaultOrm' => 'ZF\Doctrine\QueryBuilder\Query\Provider\Service\DefaultOrmFactory',
+        'ZF\Doctrine\QueryBuilder\Query\Provider\DefaultOdm' => 'ZF\Doctrine\QueryBuilder\Query\Provider\Service\DefaultOdmFactory',
+    ],
+    'aliases' => [
         'default_orm' => 'ZF\Doctrine\QueryBuilder\Query\Provider\DefaultOrm',
         'default_odm' => 'ZF\Doctrine\QueryBuilder\Query\Provider\DefaultOdm',
-    )
-),
+    ]
+],
 ```
 
 Or: to use with apigility doctrine events see [docs/apigility.example.php](https://github.com/zfcampus/zf-doctrine-querybuilder/blob/master/docs/apigility.example.php)
