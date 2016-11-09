@@ -1,65 +1,79 @@
 {
     "name": "zfcampus/zf-doctrine-querybuilder",
+    "description": "Apigility Doctrine QueryBuilder module",
     "type": "library",
-    "description": "QueryBuilder filters for Doctrine",
+    "license": "BSD-3-Clause",
     "keywords": [
         "api",
         "apigility",
         "doctrine",
         "filter",
-        "module",
         "zend",
-        "zf2"
+        "zf"
     ],
-    "homepage": "https://github.com/zfcampus/zf-doctrine-querybuilder-filter",
-    "license": "BSD-3-Clause",
-    "authors": [
-        {
-            "name": "Tom Anderson",
-            "email": "tom.h.anderson@gmail.com"
+    "homepage": "https://apigility.org",
+    "support": {
+        "irc": "irc://irc.freenode.net/apigility",
+        "source": "https://github.com/zfcampus/zf-doctrine-querybuilder",
+        "issues": "https://github.com/zfcampus/zf-doctrine-querybuilder/issues"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.4-dev",
+            "dev-develop": "1.5-dev"
+        },
+        "zf": {
+            "module": [
+                "ZF\\Doctrine\\QueryBuilder"
+            ]
         }
-    ],
+    },
     "require": {
-        "php": ">=5.4",
-        "doctrine/doctrine-module": "^0.8 || ^1.0",
-        "zendframework/zend-modulemanager": "^2.4",
-        "zendframework/zend-mvc": "^2.4",
-        "zendframework/zend-servicemanager": "^2.4",
-        "zfcampus/zf-api-problem": "^1.1",
-        "zfcampus/zf-hal": "^1.2"
+        "php": "^5.6 || ^7.0",
+        "doctrine/doctrine-module": "^1.2",
+        "zendframework/zend-hydrator": "^1.1 || ^2.2.1",
+        "zendframework/zend-modulemanager": "^2.7.2",
+        "zendframework/zend-mvc": "^2.7.10 || ^3.0.2",
+        "zendframework/zend-servicemanager": "^2.7.6 || ^3.1.1",
+        "zfcampus/zf-api-problem": "^1.2.2",
+        "zfcampus/zf-apigility-doctrine": "^2.1",
+        "zfcampus/zf-hal": "^1.4.2"
     },
     "require-dev": {
-        "doctrine/doctrine-mongo-odm-module": "0.*@dev",
-        "doctrine/doctrine-orm-module": "0.*@dev",
-        "phpunit/phpunit": "^4.1",
-        "zendframework/zendframework": "^2.4",
-        "zfcampus/zf-apigility-provider": "^1.1",
-        "squizlabs/php_codesniffer": "^2.0"
+        "phpunit/phpunit": "^5.6",
+        "zendframework/zend-coding-standard": "^1.0",
+        "doctrine/doctrine-mongo-odm-module": "^0.11",
+        "doctrine/doctrine-orm-module": "^1.1",
+        "zendframework/zend-i18n": "^2.7.3",
+        "zendframework/zend-log": "^2.9.1",
+        "zendframework/zend-serializer": "^2.8",
+        "zendframework/zend-test": "^2.6.1 || ^3.0.1",
+        "zfcampus/zf-apigility-provider": "^1.2"
     },
     "suggest": {
         "ext/mongo": "Mongo extension, if using ODM",
-        "doctrine/doctrine-mongo-odm-module": "v0.*, if you wish to use the Doctrine ODM",
-        "doctrine/doctrine-orm-module": "v0.*, if you wish to use the Doctrine ORM"
+        "doctrine/doctrine-mongo-odm-module": "^0.11, if you wish to use the Doctrine ODM",
+        "doctrine/doctrine-orm-module": "^1.1, if you wish to use the Doctrine ORM"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "ZF\\Doctrine\\QueryBuilder\\": "src/"
-        },
-        "classmap": [
-          "Module.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
             "ZFTest\\Doctrine\\QueryBuilder\\": "test/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev",
-            "dev-develop": "1.1-dev"
-        }
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "upload-coverage": "coveralls -v",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-clover clover.xml"
     }
 }

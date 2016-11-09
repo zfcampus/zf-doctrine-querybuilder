@@ -1,13 +1,16 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
+ */
 
 namespace ZFTest\Doctrine\QueryBuilder\Filter;
 
-use Zend\Http\Request;
-use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use DateTime;
 use DbMongo\Document;
+use ZFTest\Doctrine\QueryBuilder\TestCase;
 
-class ODMFilterTest extends AbstractHttpControllerTestCase
+class ODMFilterTest extends TestCase
 {
     private function countResult($filters, $entity = 'DbMongo\Document\Meta')
     {
@@ -72,372 +75,366 @@ class ODMFilterTest extends AbstractHttpControllerTestCase
 
     public function testEquals()
     {
-        $filters = array(
-            array('field' =>'name', 'type'=>'eq', 'value' => 'MetaOne'),
-        );
+        $filters = [
+            ['field' => 'name', 'type' => 'eq', 'value' => 'MetaOne'],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'eq',
                 'value' => '2014-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
                 'type' => 'eq',
                 'value' => '2014-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-
-            array(
-                'field' =>'createdAt',
+                'format' => 'Y-m-d H:i:s',
+            ],
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
                 'type' => 'eq',
                 'value' => '2012-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
     }
 
     public function testNotEquals()
     {
-        $filters = array(
-            array('field' =>'name', 'type'=>'neq', 'value' => 'MetaOne'),
-        );
+        $filters = [
+            ['field' => 'name', 'type' => 'neq', 'value' => 'MetaOne'],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
                 'type' => 'neq',
                 'value' => '2014-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'neq',
                 'value' => '2014-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-
-            array(
-                'field' =>'createdAt',
+                'format' => 'Y-m-d H:i:s',
+            ],
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'neq',
                 'value' => '2012-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(3, $this->countResult($filters));
     }
 
     public function testLessThan()
     {
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'type' => 'lt',
                 'value' => '2014-01-01',
-                'format' => 'Y-m-d'
-            ),
-        );
+                'format' => 'Y-m-d',
+            ],
+        ];
 
         $this->assertEquals(3, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'lt',
-                'value' => '2013-12-18 13:17:17'
-            ),
-        );
+                'value' => '2013-12-18 13:17:17',
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
-                'type'=>'lt',
-                'value' => '2013-12-18 13:17:17'
-            ),
-
-            array(
-                'field' =>'name',
+                'type' => 'lt',
+                'value' => '2013-12-18 13:17:17',
+            ],
+            [
+                'field' => 'name',
                 'where' => 'or',
                 'type' => 'eq',
-                'value'=>'MetaTwo'
-            ),
-        );
+                'value' => 'MetaTwo',
+            ],
+        ];
 
         $this->assertEquals(3, $this->countResult($filters));
     }
 
     public function testLessThanOrEquals()
     {
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'type' => 'lte',
                 'value' => '2011-12-20',
-                'format' => 'Y-m-d'
-            ),
-        );
+                'format' => 'Y-m-d',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'type' => 'lte',
-                'value' => '2011-12-18 13:17:16'
-            ),
-        );
+                'value' => '2011-12-18 13:17:16',
+            ],
+        ];
 
         $this->assertEquals(0, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
-                'type'=>'lte',
-                'value' => '2013-12-18 13:17:17'
-            ),
-        );
+                'type' => 'lte',
+                'value' => '2013-12-18 13:17:17',
+            ],
+        ];
 
         $this->assertEquals(3, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
-                'type'=>'lte',
-                'value' => '2013-12-18 13:17:17'
-            ),
-            array(
-                'field' =>'name',
+                'type' => 'lte',
+                'value' => '2013-12-18 13:17:17',
+            ],
+            [
+                'field' => 'name',
                 'where' => 'or',
                 'type' => 'eq',
-                'value'=>'MetaTwo'
-            ),
-        );
+                'value' => 'MetaTwo',
+            ],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
     }
 
     public function testGreaterThan()
     {
-        $filters = array(
-            array(
-                'field' =>'createdAt',
-                'type'=>'gt',
+        $filters = [
+            [
+                'field' => 'createdAt',
+                'type' => 'gt',
                 'value' => '2014-01-01',
-                'format' => 'Y-m-d'
-            ),
-        );
+                'format' => 'Y-m-d',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'createdAt',
                 'where' => 'or',
-                'type'=>'gt',
+                'type' => 'gt',
                 'value' => '2013-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
-                'type'=>'gt',
+                'type' => 'gt',
                 'value' => '2013-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-
-            array(
-                'field' =>'createdAt',
+                'format' => 'Y-m-d H:i:s',
+            ],
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'gt',
                 'value' => '2012-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
     }
 
     public function testGreaterThanOrEquals()
     {
-        $filters = array(
-            array(
-                'field' =>'createdAt',
-                'type'=>'gte',
-                'value' => '2014-12-18 13:17:17'
-            ),
-        );
+        $filters = [
+            [
+                'field' => 'createdAt',
+                'type' => 'gte',
+                'value' => '2014-12-18 13:17:17',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'type' => 'gte',
-                'value' => '2014-12-18 13:17:18'
-            ),
-        );
+                'value' => '2014-12-18 13:17:18',
+            ],
+        ];
 
         $this->assertEquals(0, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'gte',
                 'value' => '2013-12-18 13:17:17',
                 'format' => 'Y-m-d H:i:s',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
                 'type' => 'gte',
                 'value' => '2013-12-18 13:17:17',
                 'format' => 'Y-m-d H:i:s',
-            ),
-
-            array(
-                'field' =>'createdAt',
+            ],
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
-                'type'=>'gte',
+                'type' => 'gte',
                 'value' => '2012-12-18 13:17:17',
-                'format' => 'Y-m-d H:i:s'
-            ),
-        );
+                'format' => 'Y-m-d H:i:s',
+            ],
+        ];
 
         $this->assertEquals(3, $this->countResult($filters));
     }
 
     public function testIsNull()
     {
-        $filters = array(
-            array(
-                'field' =>'createdAt',
-                'type'=>'isnull',
-            ),
-        );
+        $filters = [
+            [
+                'field' => 'createdAt',
+                'type' => 'isnull',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
-                'type'=>'isnull',
-            ),
-        );
+                'type' => 'isnull',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
                 'type' => 'isnull',
-            ),
-            array(
-                'field' =>'name',
+            ],
+            [
+                'field' => 'name',
                 'where' => 'or',
                 'type' => 'eq',
                 'value' => 'MetaOne',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
     }
 
     public function testIsNotNull()
     {
-        $filters = array(
-            array(
-                'field' =>'createdAt',
-                'type'=>'isnotnull',
-            ),
-        );
+        $filters = [
+            [
+                'field' => 'createdAt',
+                'type' => 'isnotnull',
+            ],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'isnotnull',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
                 'type' => 'isnotnull',
-            ),
-
-            array(
-                'field' =>'name',
+            ],
+            [
+                'field' => 'name',
                 'where' => 'or',
                 'type' => 'eq',
                 'value' => 'MetaFive',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(5, $this->countResult($filters));
     }
@@ -446,44 +443,44 @@ class ODMFilterTest extends AbstractHttpControllerTestCase
     {
         // Date handling in IN and NOTIN doesn't seem to work at all, so just test with strings
 
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'name',
                 'type' => 'in',
-                'values' => array(
+                'values' => [
                     'MetaOne',
-                    'MetaTwo'
-                ),
-            ),
-        );
+                    'MetaTwo',
+                ],
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
-                'type'=>'in',
-                'values' => array(
+        $filters = [
+            [
+                'field' => 'name',
+                'type' => 'in',
+                'values' => [
                     'MetaOne',
-                ),
+                ],
                 'where' => 'and',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
-                'type'=>'in',
-                'values' => array(
+        $filters = [
+            [
+                'field' => 'name',
+                'type' => 'in',
+                'values' => [
                     'MetaOne',
-                ),
-                'where' => 'or'
-            ),
-        );
+                ],
+                'where' => 'or',
+            ],
+        ];
 
         // count is 2 because null is not counted in a notin
         $this->assertEquals(1, $this->countResult($filters));
@@ -491,45 +488,45 @@ class ODMFilterTest extends AbstractHttpControllerTestCase
 
     public function testNotIn()
     {
-        $filters = array(
-            array(
-                'field' =>'name',
-                'type'=>'notin',
-                'values' => array(
+        $filters = [
+            [
+                'field' => 'name',
+                'type' => 'notin',
+                'values' => [
                     'MetaOne',
                     'MetaTwo',
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $this->assertEquals(3, $this->countResult($filters));
 
 
         // Test date field
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'name',
                 'where' => 'and',
                 'type' => 'notin',
-                'values' => array(
+                'values' => [
                     'MetaOne',
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
+        $filters = [
+            [
+                'field' => 'name',
                 'where' => 'or',
-                'type'=>'notin',
-                'values' => array(
+                'type' => 'notin',
+                'values' => [
                     'MetaTwo',
-                )
-            ),
-        );
+                ],
+            ],
+        ];
 
         // count is 2 because null is not counted in a notin
         $this->assertEquals(4, $this->countResult($filters));
@@ -537,135 +534,134 @@ class ODMFilterTest extends AbstractHttpControllerTestCase
 
     public function testBetween()
     {
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'createdAt',
                 'where' => 'and',
                 'type' => 'between',
                 'from' => '2012-12-15',
                 'to' => '2013-01-01',
-                'format' => 'Y-m-d'
-            ),
-        );
+                'format' => 'Y-m-d',
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'createdAt',
+        $filters = [
+            [
+                'field' => 'createdAt',
                 'where' => 'or',
-                'type'=>'between',
+                'type' => 'between',
                 'from' => '2010-12-15',
                 'to' => '2013-01-01',
                 'format' => 'Y-m-d',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'createdAt',
                 'type' => 'between',
                 'from' => '2010-12-15',
                 'to' => '2013-01-01',
                 'format' => 'Y-m-d',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
     }
 
     public function testLike()
     {
-        $filters = array(
-            array(
-                'field' =>'name',
-                'type'=>'like',
+        $filters = [
+            [
+                'field' => 'name',
+                'type' => 'like',
                 'value' => 'Meta%',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(5, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
-                'type'=>'like',
+        $filters = [
+            [
+                'field' => 'name',
+                'type' => 'like',
                 'value' => '%Two',
-            ),
-        );
+            ],
+        ];
 
         $this->assertEquals(1, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'name',
                 'where' => 'and',
                 'type' => 'like',
-                'value' => '%eta%'
-            ),
-        );
+                'value' => '%eta%',
+            ],
+        ];
 
         $this->assertEquals(5, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
-                'where' => 'or',
-                'type' => 'like',
-                'value' => 'MetaT%'
-            ),
-
-            array(
+        $filters = [
+            [
                 'field' => 'name',
                 'where' => 'or',
                 'type' => 'like',
-                'value' => 'MetaF%'
-            ),
-        );
+                'value' => 'MetaT%',
+            ],
+            [
+                'field' => 'name',
+                'where' => 'or',
+                'type' => 'like',
+                'value' => 'MetaF%',
+            ],
+        ];
 
         $this->assertEquals(4, $this->countResult($filters));
     }
 
     public function testRegex()
     {
-        $filters = array(
-            array(
+        $filters = [
+            [
                 'field' => 'name',
                 'type' => 'regex',
-                'value' => '/.*T.*$/'
-            ),
-        );
+                'value' => '/.*T.*$/',
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
+        $filters = [
+            [
+                'field' => 'name',
                 'where' => 'or',
-                'type'=>'regex',
-                'value' => '/.*T.*$/'
-            ),
-        );
+                'type' => 'regex',
+                'value' => '/.*T.*$/',
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
 
 
-        $filters = array(
-            array(
-                'field' =>'name',
+        $filters = [
+            [
+                'field' => 'name',
                 'where' => 'and',
-                'type'=>'regex',
-                'value' => '/.*T.*$/'
-            ),
-        );
+                'type' => 'regex',
+                'value' => '/.*T.*$/',
+            ],
+        ];
 
         $this->assertEquals(2, $this->countResult($filters));
     }

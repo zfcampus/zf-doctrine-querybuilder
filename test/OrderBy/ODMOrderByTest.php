@@ -1,13 +1,16 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
+ */
 
 namespace ZFTest\Doctrine\QueryBuilder\OrderBy;
 
-use Zend\Http\Request;
-use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use DateTime;
 use DbMongo\Document;
+use ZFTest\Doctrine\QueryBuilder\TestCase;
 
-class ODMOrderByTest extends AbstractHttpControllerTestCase
+class ODMOrderByTest extends TestCase
 {
     private function fetchResult($orderBy, $entity = 'DbMongo\Document\Meta')
     {
@@ -72,9 +75,9 @@ class ODMOrderByTest extends AbstractHttpControllerTestCase
 
     public function testField()
     {
-        $orderBy = array(
-            array('type' =>'field', 'field' => 'name', 'direction' => 'asc'),
-        );
+        $orderBy = [
+            ['type' => 'field', 'field' => 'name', 'direction' => 'asc'],
+        ];
 
         $result = $this->fetchResult($orderBy);
         foreach ($result as $meta) {
@@ -83,9 +86,9 @@ class ODMOrderByTest extends AbstractHttpControllerTestCase
         }
 
 
-        $orderBy = array(
-            array('type' =>'field', 'field' => 'name', 'direction' => 'desc'),
-        );
+        $orderBy = [
+            ['type' => 'field', 'field' => 'name', 'direction' => 'desc'],
+        ];
 
         $result = $this->fetchResult($orderBy);
         foreach ($result as $meta) {

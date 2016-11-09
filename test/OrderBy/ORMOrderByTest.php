@@ -1,13 +1,17 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
+ */
 
 namespace ZFTest\Doctrine\QueryBuilder\OrderBy;
 
-use Doctrine\ORM\Tools\SchemaTool;
-use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use DateTime;
 use Db\Entity;
+use Doctrine\ORM\Tools\SchemaTool;
+use ZFTest\Doctrine\QueryBuilder\TestCase;
 
-class ORMOrderByTest extends AbstractHttpControllerTestCase
+class ORMOrderByTest extends TestCase
 {
     private function fetchResult($orderBy, $entity = 'Db\Entity\Artist')
     {
@@ -69,13 +73,13 @@ class ORMOrderByTest extends AbstractHttpControllerTestCase
 
     public function testField()
     {
-        $orderBy = array(
-            array(
+        $orderBy = [
+            [
                 'type' => 'field',
                 'field' => 'name',
                 'direction' => 'desc',
-            ),
-        );
+            ],
+        ];
 
         $result = $this->fetchResult($orderBy);
         $artist = reset($result);
@@ -83,13 +87,13 @@ class ORMOrderByTest extends AbstractHttpControllerTestCase
         $this->assertEquals('Ekoostic Hookah', $artist->getName());
 
 
-        $orderBy = array(
-            array(
+        $orderBy = [
+            [
                 'type' => 'field',
                 'field' => 'name',
                 'direction' => 'asc',
-            ),
-        );
+            ],
+        ];
 
         $result = $this->fetchResult($orderBy);
         $artist = reset($result);

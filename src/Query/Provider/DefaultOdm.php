@@ -1,28 +1,31 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
+ */
 
 namespace ZF\Doctrine\QueryBuilder\Query\Provider;
 
-use ZF\Apigility\Doctrine\Server\Query\Provider\QueryProviderInterface;
-use ZF\Apigility\Doctrine\Server\Paginator\Adapter\DoctrineOdmAdapter;
-use DoctrineModule\Persistence\ObjectManagerAwareInterface;
-use Doctrine\Common\Persistence\ObjectManager;
-use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use ZF\Apigility\Doctrine\Server\Paginator\Adapter\DoctrineOdmAdapter;
+use ZF\Apigility\Doctrine\Server\Query\Provider\AbstractQueryProvider;
+use ZF\Apigility\Doctrine\Server\Query\Provider\QueryProviderInterface;
+use ZF\Doctrine\QueryBuilder\Filter\Service\ODMFilterManager;
+use ZF\Doctrine\QueryBuilder\OrderBy\Service\ODMOrderByManager;
 use ZF\Rest\ResourceEvent;
 
-class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
+class DefaultOdm extends AbstractQueryProvider implements QueryProviderInterface
 {
     /**
      * @var ServiceLocatorInterface
      */
-    protected $serviceLocator = null;
+    protected $serviceLocator;
 
     /**
      * Set service locator
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @return self
      */
     public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
     {
@@ -42,46 +45,18 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
     }
 
     /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * Set the object manager
-     *
-     * @param ObjectManager $objectManager
-     */
-    public function setObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
-     * Get the object manager
-     *
-     * @return ObjectManager
-     */
-    public function getObjectManager()
-    {
-        return $this->objectManager;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function createQuery(ResourceEvent $event, $entityClass, $parameters)
     {
-        $request = $this->getServiceLocator()
-            ->getServiceLocator()->get('Application')->getRequest()->getQuery()->toArray();
+        $request = $event->getRequest()->getQuery()->toArray();
 
         $queryBuilder = $this->getObjectManager()->createQueryBuilder();
         $queryBuilder->find($entityClass);
 
         if (isset($request[$this->getFilterKey()])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getMetadataFor($entityClass);
-            $filterManager = $this->getServiceLocator()
-                ->getServiceLocator()->get('ZfDoctrineQueryBuilderFilterManagerOdm');
-            $filterManager->filter(
+            $this->getFilterManager()->filter(
                 $queryBuilder,
                 $metadata,
                 $request[$this->getFilterKey()]
@@ -90,9 +65,7 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
 
         if (isset($request[$this->getOrderByKey()])) {
             $metadata = $this->getObjectManager()->getMetadataFactory()->getMetadataFor($entityClass);
-            $orderByManager = $this->getServiceLocator()
-                ->getServiceLocator()->get('ZfDoctrineQueryBuilderOrderByManagerOdm');
-            $orderByManager->orderBy(
+            $this->getOrderByManager()->orderBy(
                 $queryBuilder,
                 $metadata,
                 $request[$this->getOrderByKey()]
@@ -103,8 +76,7 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
     }
 
     /**
-     * @param   $queryBuilder
-     *
+     * @param $queryBuilder
      * @return DoctrineOdmAdapter
      */
     public function getPaginatedQuery($queryBuilder)
@@ -115,8 +87,7 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
     }
 
     /**
-     * @param   $entityClass
-     *
+     * @param $entityClass
      * @return int
      */
     public function getCollectionTotal($entityClass)
@@ -133,15 +104,12 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
      */
     protected function getFilterKey()
     {
-        $config = $this->getServiceLocator()->getServiceLocator()->get('Config');
-
-        if (isset($config['zf-doctrine-querybuilder-options']['filter_key'])) {
-            $filterKey = $config['zf-doctrine-querybuilder-options']['filter_key'];
-        } else {
-            $filterKey = 'filter';
+        $config = $this->getConfig();
+        if (isset($config['filter_key'])) {
+            return $config['filter_key'];
         }
 
-        return $filterKey;
+        return 'filter';
     }
 
     /**
@@ -149,14 +117,40 @@ class DefaultOdm implements QueryProviderInterface, ServiceLocatorAwareInterface
      */
     protected function getOrderByKey()
     {
-        $config = $this->getServiceLocator()->getServiceLocator()->get('Config');
-
-        if (isset($config['zf-doctrine-querybuilder-options']['order_by_key'])) {
-            $orderByKey = $config['zf-doctrine-querybuilder-options']['order_by_key'];
-        } else {
-            $orderByKey = 'order-by';
+        $config = $this->getConfig();
+        if (isset($config['order_by_key'])) {
+            return $config['order_by_key'];
         }
 
-        return $orderByKey;
+        return 'order-by';
+    }
+
+    /**
+     * @return array
+     */
+    private function getConfig()
+    {
+        $config = $this->getServiceLocator()->get('config');
+        if (isset($config['zf-doctrine-querybuilder-options'])) {
+            return $config['zf-doctrine-querybuilder-options'];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return ODMFilterManager
+     */
+    private function getFilterManager()
+    {
+        return $this->getServiceLocator()->get(ODMFilterManager::class);
+    }
+
+    /**
+     * @return ODMOrderByManager
+     */
+    private function getOrderByManager()
+    {
+        return $this->getServiceLocator()->get(ODMOrderByManager::class);
     }
 }

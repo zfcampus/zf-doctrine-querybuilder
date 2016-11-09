@@ -31,7 +31,7 @@ class AndX extends AbstractFilter
         foreach ($option['conditions'] as $condition) {
             $filter = $this->getFilterManager()->get(
                 strtolower($condition['type']),
-                array($this->getFilterManager())
+                [$this->getFilterManager()]
             );
             $filter->filter($qb, $metadata, $condition);
         }

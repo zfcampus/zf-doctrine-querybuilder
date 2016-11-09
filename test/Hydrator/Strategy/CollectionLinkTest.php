@@ -1,9 +1,15 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
+ */
 
 namespace ZFTest\Doctrine\QueryBuilder\Hydrator\Strategy;
 
-use \ZF\Doctrine\QueryBuilder\Hydrator\Strategy\CollectionLink;
 use PHPUnit_Framework_TestCase;
+use stdClass;
+use Zend\ServiceManager\ServiceManager;
+use ZF\Doctrine\QueryBuilder\Hydrator\Strategy\CollectionLink;
 
 class CollectionLinkTest extends PHPUnit_Framework_TestCase
 {
@@ -16,24 +22,29 @@ class CollectionLinkTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->mockValue = $this->getMock('stdClass', ['getTypeClass', 'getMapping', 'getOwner']);
+        $this->mockValue = $this->getMockBuilder(stdClass::class)
+            ->setMethods(['getTypeClass', 'getMapping', 'getOwner'])
+            ->getMock();
+
         $this->mockValue->expects($this->any())
-                ->method('getTypeClass')
-                ->will($this->returnCallback(function () {
+            ->method('getTypeClass')
+            ->will($this->returnCallback(function () {
+                $mockTypeClass = new stdClass();
+                $mockTypeClass->name = 'MockValue';
 
-                    $mockTypeClass = new \stdClass();
-                    $mockTypeClass->name = 'MockValue';
-
-                    return $mockTypeClass;
-                }));
+                return $mockTypeClass;
+            }));
 
         $this->mockValue->expects($this->any())
                 ->method('getOwner')
                 ->will($this->returnCallback(function () {
-                    $mockOwner = $this->getMock('stdClass', ['getId']);
+                    $mockOwner = $this->getMockBuilder(stdClass::class)
+                        ->setMethods(['getId'])
+                        ->getMock();
+
                     $mockOwner->expects($this->any())
-                    ->method('getId')
-                    ->will($this->returnValue(123));
+                        ->method('getId')
+                        ->will($this->returnValue(123));
 
                     return $mockOwner;
                 }));
@@ -52,15 +63,11 @@ class CollectionLinkTest extends PHPUnit_Framework_TestCase
             ],
         ];
 
-        $mock = $this->getMock('Zend\ServiceManager\ServiceManager', ['get']);
-        $mock->expects($this->any())
-                ->method('get')
-                ->with($this->equalTo('Config'))
-                ->will($this->returnValue($config));
-
+        $mock = $this->prophesize(ServiceManager::class);
+        $mock->get('config')->willReturn($config);
 
         $this->hydrator = new CollectionLink();
-        $this->hydrator->setServiceManager($mock);
+        $this->hydrator->setServiceManager($mock->reveal());
     }
 
     public function mappingDataProvider()
@@ -92,10 +99,10 @@ class CollectionLinkTest extends PHPUnit_Framework_TestCase
                                 'field' => 'blog',
                                 'type' => 'eq',
                                 'value' => 123,
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ],
             // ManyToMany relation
             [
@@ -152,10 +159,10 @@ class CollectionLinkTest extends PHPUnit_Framework_TestCase
                                 'field' => 'tags',
                                 'type' => 'ismemberof',
                                 'value' => 123,
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ],
             // ManyToMany inversed relation
             [
@@ -184,10 +191,10 @@ class CollectionLinkTest extends PHPUnit_Framework_TestCase
                                 'field' => 'posts',
                                 'type' => 'ismemberof',
                                 'value' => 123,
-                            ]
-                        ]
-                    ]
-                ]
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ];
     }

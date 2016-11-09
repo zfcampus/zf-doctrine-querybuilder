@@ -1,22 +1,23 @@
 <?php
+/**
+ * @license   http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
+ * @copyright Copyright (c) 2016 Zend Technologies USA Inc. (http://www.zend.com)
+ */
 
 namespace ZF\Doctrine\QueryBuilder\Hydrator\Strategy;
 
-use Zend\Stdlib\Hydrator\Strategy\StrategyInterface;
 use DoctrineModule\Stdlib\Hydrator\Strategy\AbstractCollectionStrategy;
-use ZF\Hal\Link\Link;
-use Zend\ServiceManager\ServiceManager;
-use Zend\ServiceManager\ServiceManagerAwareInterface;
 use Zend\Filter\FilterChain;
+use Zend\Hydrator\Strategy\StrategyInterface;
+use Zend\ServiceManager\ServiceManager;
+use ZF\Hal\Link\Link;
 
 /**
  * A field-specific hydrator for collections.
  *
  * @returns Link
  */
-class CollectionLink extends AbstractCollectionStrategy implements
-    StrategyInterface,
-    ServiceManagerAwareInterface
+class CollectionLink extends AbstractCollectionStrategy implements StrategyInterface
 {
     protected $serviceManager;
 
@@ -34,9 +35,10 @@ class CollectionLink extends AbstractCollectionStrategy implements
 
     public function extract($value)
     {
-        $config = $this->getServiceManager()->get('Config');
-        if (!method_exists($value, 'getTypeClass')
-            || !isset($config['zf-hal']['metadata_map'][$value->getTypeClass()->name])) {
+        $config = $this->getServiceManager()->get('config');
+        if (! method_exists($value, 'getTypeClass')
+            || ! isset($config['zf-hal']['metadata_map'][$value->getTypeClass()->name])
+        ) {
             return;
         }
 
@@ -49,7 +51,7 @@ class CollectionLink extends AbstractCollectionStrategy implements
 
         $link = new Link($filter($mapping['fieldName']));
         $link->setRoute($config['route_name']);
-        $link->setRouteParams(array('id' => null));
+        $link->setRouteParams(['id' => null]);
 
         if (isset($config['zf-doctrine-querybuilder-options']['filter_key'])) {
             $filterKey = $config['zf-doctrine-querybuilder-options']['filter_key'];
@@ -57,19 +59,19 @@ class CollectionLink extends AbstractCollectionStrategy implements
             $filterKey = 'filter';
         }
 
-        $filterValue = array(
+        $filterValue = [
             'field' => $mapping['mappedBy'] ? : $mapping['inversedBy'],
-            'type' =>isset($mapping['joinTable']) ? 'ismemberof' : 'eq',
+            'type' => isset($mapping['joinTable']) ? 'ismemberof' : 'eq',
             'value' => $value->getOwner()->getId(),
-        );
+        ];
 
-        $link->setRouteOptions(array(
-            'query' => array(
-                $filterKey => array(
+        $link->setRouteOptions([
+            'query' => [
+                $filterKey => [
                     $filterValue,
-                ),
-            ),
-        ));
+                ],
+            ],
+        ]);
 
         return $link;
     }

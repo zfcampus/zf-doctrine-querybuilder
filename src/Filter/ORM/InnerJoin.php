@@ -13,16 +13,12 @@ class InnerJoin extends AbstractFilter
     public function filter($queryBuilder, $metadata, $option)
     {
         if (! isset($option['field']) || ! $option['field']) {
-            // @codeCoverageIgnoreStart
             throw new Exception('Field must be specified for inner join');
         }
-            // @codeCoverageIgnoreEnd
 
         if (! isset($option['alias']) || ! $option['alias']) {
-            // @codeCoverageIgnoreStart
             throw new Exception('Alias must be specified for inner join');
         }
-            // @codeCoverageIgnoreEnd
 
         if (! isset($option['parentAlias']) || ! $option['parentAlias']) {
             $option['parentAlias'] = 'row';

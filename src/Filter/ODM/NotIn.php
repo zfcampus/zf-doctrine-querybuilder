@@ -21,7 +21,7 @@ class NotIn extends AbstractFilter
 
         $format = isset($option['format']) ? $option['format'] : null;
 
-        $queryValues = array();
+        $queryValues = [];
         foreach ($option['values'] as $value) {
             $queryValues[] = $this->typeCastField(
                 $metadata,
