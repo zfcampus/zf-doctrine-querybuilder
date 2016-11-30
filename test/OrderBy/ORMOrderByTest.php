@@ -100,4 +100,20 @@ class ORMOrderByTest extends TestCase
 
         $this->assertEquals('ABBA', $artist->getName());
     }
+
+    public function testFieldFailsQuietlyWithInvalidFieldName()
+    {
+        $orderBy = [
+            [
+                'type' => 'field',
+                'field' => 'invalid',
+                'direction' => 'desc',
+            ],
+        ];
+
+        $result = $this->fetchResult($orderBy);
+        $artist = reset($result);
+
+        $this->assertEquals('ABBA', $artist->getName());
+    }
 }
