@@ -6,9 +6,10 @@
 
 namespace ZF\Doctrine\QueryBuilder\Filter\ORM;
 
-use DateTime;
 use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 use ZF\Doctrine\QueryBuilder\Filter\Service\ORMFilterManager;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidFilterException;
+use DateTime;
 
 abstract class AbstractFilter implements FilterInterface
 {
@@ -34,8 +35,13 @@ abstract class AbstractFilter implements FilterInterface
 
     protected function typeCastField($metadata, $field, $value, $format, $doNotTypecastDatetime = false)
     {
-        if (! isset($metadata->fieldMappings[$field])) {
+        // If association just return
+        if (isset($metadata->associationMappings[$field])) {
             return $value;
+        }
+
+        if (! isset($metadata->fieldMappings[$field])) {
+            throw new InvalidFilterException('Invalid field in filter directive');
         }
 
         switch ($metadata->fieldMappings[$field]['type']) {

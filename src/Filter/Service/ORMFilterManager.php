@@ -7,10 +7,10 @@
 namespace ZF\Doctrine\QueryBuilder\Filter\Service;
 
 use Doctrine\ORM\QueryBuilder;
-use RuntimeException;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception;
 use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidFilterException;
 
 class ORMFilterManager extends AbstractPluginManager
 {
@@ -23,7 +23,7 @@ class ORMFilterManager extends AbstractPluginManager
     {
         foreach ($filters as $option) {
             if (empty($option['type'])) {
-                throw new RuntimeException('Array element "type" is required for all filters');
+                throw new InvalidFilterException('Array element "type" is required for all filters');
             }
 
             $filter = $this->get(strtolower($option['type']), [$this]);

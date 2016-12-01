@@ -6,18 +6,18 @@
 
 namespace ZF\Doctrine\QueryBuilder\Filter\ORM;
 
-use Exception;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidFilterException;
 
 class InnerJoin extends AbstractFilter
 {
     public function filter($queryBuilder, $metadata, $option)
     {
         if (! isset($option['field']) || ! $option['field']) {
-            throw new Exception('Field must be specified for inner join');
+            throw new InvalidFilterException('Field must be specified for inner join');
         }
 
         if (! isset($option['alias']) || ! $option['alias']) {
-            throw new Exception('Alias must be specified for inner join');
+            throw new InvalidFilterException('Alias must be specified for inner join');
         }
 
         if (! isset($option['parentAlias']) || ! $option['parentAlias']) {
@@ -25,11 +25,11 @@ class InnerJoin extends AbstractFilter
         }
 
         if (! isset($option['conditionType']) && isset($option['condition'])) {
-            throw new Exception('A conditionType must be specified for a condition');
+            throw new InvalidFilterException('A conditionType must be specified for a condition');
         }
 
         if (! isset($option['condition']) && isset($option['conditionType'])) {
-            throw new Exception('A condition must be specified for a conditionType');
+            throw new InvalidFilterException('A condition must be specified for a conditionType');
         }
 
         if (! isset($option['conditionType'])) {

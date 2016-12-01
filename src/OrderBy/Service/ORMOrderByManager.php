@@ -7,10 +7,10 @@
 namespace ZF\Doctrine\QueryBuilder\OrderBy\Service;
 
 use Doctrine\ORM\QueryBuilder;
-use RuntimeException;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception;
 use ZF\Doctrine\QueryBuilder\OrderBy\OrderByInterface;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidOrderByException;
 
 class ORMOrderByManager extends AbstractPluginManager
 {
@@ -23,7 +23,7 @@ class ORMOrderByManager extends AbstractPluginManager
     {
         foreach ($orderBy as $option) {
             if (empty($option['type'])) {
-                throw new RuntimeException('Array element "type" is required for all orderby directives');
+                throw new InvalidOrderByException('Array element "type" is required for all orderby directives');
             }
 
             $orderByHandler = $this->get(strtolower($option['type']), [$this]);
