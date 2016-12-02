@@ -10,8 +10,11 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use ZF\Apigility\Doctrine\Server\Paginator\Adapter\DoctrineOdmAdapter;
 use ZF\Apigility\Doctrine\Server\Query\Provider\AbstractQueryProvider;
 use ZF\Apigility\Doctrine\Server\Query\Provider\QueryProviderInterface;
+use ZF\ApiProblem\ApiProblem;
 use ZF\Doctrine\QueryBuilder\Filter\Service\ODMFilterManager;
 use ZF\Doctrine\QueryBuilder\OrderBy\Service\ODMOrderByManager;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidFieldException;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidOrderByException;
 use ZF\Rest\ResourceEvent;
 
 class DefaultOdm extends AbstractQueryProvider implements QueryProviderInterface
@@ -54,22 +57,30 @@ class DefaultOdm extends AbstractQueryProvider implements QueryProviderInterface
         $queryBuilder = $this->getObjectManager()->createQueryBuilder();
         $queryBuilder->find($entityClass);
 
-        if (isset($request[$this->getFilterKey()])) {
-            $metadata = $this->getObjectManager()->getMetadataFactory()->getMetadataFor($entityClass);
-            $this->getFilterManager()->filter(
-                $queryBuilder,
-                $metadata,
-                $request[$this->getFilterKey()]
-            );
+        try {
+            if (isset($request[$this->getFilterKey()])) {
+                $metadata = $this->getObjectManager()->getMetadataFactory()->getMetadataFor($entityClass);
+                $this->getFilterManager()->filter(
+                    $queryBuilder,
+                    $metadata,
+                    $request[$this->getFilterKey()]
+                );
+            }
+        } catch (InvalidFieldException $e) {
+            return new ApiProblem(422, $e->getMessage());
         }
 
-        if (isset($request[$this->getOrderByKey()])) {
-            $metadata = $this->getObjectManager()->getMetadataFactory()->getMetadataFor($entityClass);
-            $this->getOrderByManager()->orderBy(
-                $queryBuilder,
-                $metadata,
-                $request[$this->getOrderByKey()]
-            );
+        try {
+            if (isset($request[$this->getOrderByKey()])) {
+                $metadata = $this->getObjectManager()->getMetadataFactory()->getMetadataFor($entityClass);
+                $this->getOrderByManager()->orderBy(
+                    $queryBuilder,
+                    $metadata,
+                    $request[$this->getOrderByKey()]
+                );
+            }
+        } catch (InvalidOrderByException $e) {
+            return new ApiProblem(422, $e->getMessage());
         }
 
         return $queryBuilder;

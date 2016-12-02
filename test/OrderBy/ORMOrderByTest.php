@@ -10,6 +10,7 @@ use DateTime;
 use Db\Entity;
 use Doctrine\ORM\Tools\SchemaTool;
 use ZFTest\Doctrine\QueryBuilder\TestCase;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidOrderByException;
 
 class ORMOrderByTest extends TestCase
 {
@@ -99,5 +100,49 @@ class ORMOrderByTest extends TestCase
         $artist = reset($result);
 
         $this->assertEquals('ABBA', $artist->getName());
+    }
+
+    public function testFieldFailsGracefullyWithInvalidDirection()
+    {
+        $this->expectException(InvalidOrderByException::class);
+
+        $orderBy = [
+            [
+                'type' => 'field',
+                'field' => 'name',
+                'direction' => 'invalid',
+            ],
+        ];
+
+        $result = $this->fetchResult($orderBy);
+    }
+
+    public function testFieldFailsGracefullyWithInvalidFieldName()
+    {
+        $this->expectException(InvalidOrderByException::class);
+
+        $orderBy = [
+            [
+                'type' => 'field',
+                'field' => 'invalid',
+                'direction' => 'desc',
+            ],
+        ];
+
+        $result = $this->fetchResult($orderBy);
+    }
+
+    public function testManagerFailsGracefullyWithInvalidType()
+    {
+        $this->expectException(InvalidOrderByException::class);
+
+        $orderBy = [
+            [
+                'field' => 'invalid',
+                'direction' => 'desc',
+            ],
+        ];
+
+        $result = $this->fetchResult($orderBy);
     }
 }

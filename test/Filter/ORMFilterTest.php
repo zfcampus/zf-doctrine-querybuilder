@@ -10,12 +10,13 @@ use DateTime;
 use Db\Entity;
 use Doctrine\ORM\Tools\SchemaTool;
 use ZFTest\Doctrine\QueryBuilder\TestCase;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidFilterException;
 
 class ORMFilterTest extends TestCase
 {
     protected $objectManager;
 
-    private function countResult($filters, $entity = 'Db\Entity\Artist')
+    private function countResult($filters, $entity = 'Db\Entity\Artist', $debug = false)
     {
         $serviceManager = $this->getApplication()->getServiceManager();
         $filterManager = $serviceManager->get('ZfDoctrineQueryBuilderFilterManagerOrm');
@@ -25,11 +26,12 @@ class ORMFilterTest extends TestCase
         $queryBuilder->select('row')
             ->from($entity, 'row');
 
-        $metadata = $objectManager->getMetadataFactory()->getAllMetadata();
+        $metadata = $objectManager->getClassMetadata($entity);
 
-        $filterManager->filter($queryBuilder, $metadata[0], $filters);
+        $filterManager->filter($queryBuilder, $metadata, $filters);
 
         $result = $queryBuilder->getQuery()->getResult();
+
         return sizeof($result);
     }
 
@@ -826,7 +828,8 @@ class ORMFilterTest extends TestCase
                 'value' => $albumOneId,
             ],
         ];
-        $this->assertEquals(1, $this->countResult($filters));
+
+        $this->assertEquals(1, $this->countResult($filters, 'Db\Entity\Artist', true));
 
         $filters = [
             [
@@ -887,5 +890,120 @@ class ORMFilterTest extends TestCase
         ];
 
         $this->assertEquals(2, $this->countResult($filters, 'Db\Entity\Album'));
+    }
+
+    public function testInnerJoinFailsGracefullyWithoutField()
+    {
+        $this->expectException(InvalidFilterException::class);
+
+        $filters = [
+            [
+                'type' => 'innerjoin',
+                'alias' => 'a',
+                'field' => '',
+            ],
+            [
+                'alias' => 'a',
+                'field' => 'name',
+                'type' => 'eq',
+                'value' => 'ArtistOne',
+            ],
+        ];
+
+        $this->assertEquals(3, $this->countResult($filters, 'Db\Entity\Album'));
+    }
+
+    public function testInnerJoinFailsGracefullyWithoutAlias()
+    {
+        $this->expectException(InvalidFilterException::class);
+
+        $filters = [
+            [
+                'type' => 'innerjoin',
+                'alias' => '',
+                'field' => 'artist',
+            ],
+            [
+                'alias' => 'a',
+                'field' => 'name',
+                'type' => 'eq',
+                'value' => 'ArtistOne',
+            ],
+        ];
+
+        $this->assertEquals(3, $this->countResult($filters, 'Db\Entity\Album'));
+    }
+
+    public function testInnerJoinFailsGracefullyWithConditionAndWithoutConditionType()
+    {
+        $this->expectException(InvalidFilterException::class);
+
+        $filters = [
+            [
+                'type' => 'innerjoin',
+                'alias' => '',
+                'field' => 'artist',
+                'condition' => 'invalid',
+            ],
+            [
+                'alias' => 'a',
+                'field' => 'name',
+                'type' => 'eq',
+                'value' => 'ArtistOne',
+            ],
+        ];
+
+        $this->assertEquals(3, $this->countResult($filters, 'Db\Entity\Album'));
+    }
+
+    public function testInnerJoinFailsGracefullyWithConditionTypeAndWithoutCondition()
+    {
+        $this->expectException(InvalidFilterException::class);
+
+        $filters = [
+            [
+                'type' => 'innerjoin',
+                'alias' => '',
+                'field' => 'artist',
+                'conditionType' => 'invalid',
+            ],
+            [
+                'alias' => 'a',
+                'field' => 'name',
+                'type' => 'eq',
+                'value' => 'ArtistOne',
+            ],
+        ];
+
+        $this->assertEquals(3, $this->countResult($filters, 'Db\Entity\Album'));
+    }
+
+    public function testFieldFailsGracefullyWithInvalidFieldName()
+    {
+        $this->expectException(InvalidFilterException::class);
+
+        $filters = [
+            [
+                'type' => 'eq',
+                'field' => 'invalid',
+                'value' => '0',
+            ],
+        ];
+
+        $result = $this->countResult($filters);
+    }
+
+    public function testManagerFailsGracefullyWithInvalidType()
+    {
+        $this->expectException(InvalidFilterException::class);
+
+        $filters = [
+            [
+                'field' => 'invalid',
+                'direction' => 'desc',
+            ],
+        ];
+
+        $result = $this->countResult($filters);
     }
 }

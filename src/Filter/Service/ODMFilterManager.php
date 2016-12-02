@@ -8,10 +8,10 @@ namespace ZF\Doctrine\QueryBuilder\Filter\Service;
 
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata as Metadata;
 use Doctrine\ODM\MongoDB\Query\Builder as QueryBuilder;
-use RuntimeException;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception;
 use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidFilterException;
 
 class ODMFilterManager extends AbstractPluginManager
 {
@@ -23,8 +23,13 @@ class ODMFilterManager extends AbstractPluginManager
     public function filter(QueryBuilder $queryBuilder, Metadata $metadata, $filters)
     {
         foreach ($filters as $option) {
-            if (empty($option['type'])) {
-                throw new RuntimeException('Array element "type" is required for all filters');
+            if (! isset($option['type']) || empty($option['type'])) {
+                if ($option['field']) {
+                    throw new InvalidFilterException(
+                        'Filter element "type" is missing for field [' . $option['field'] . ']'
+                    );
+                }
+                throw new InvalidFilterException('Filter element "type" is required for all filters');
             }
 
             $filter = $this->get(strtolower($option['type']), [$this]);

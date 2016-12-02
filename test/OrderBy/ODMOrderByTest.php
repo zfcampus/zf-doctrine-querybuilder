@@ -9,6 +9,7 @@ namespace ZFTest\Doctrine\QueryBuilder\OrderBy;
 use DateTime;
 use DbMongo\Document;
 use ZFTest\Doctrine\QueryBuilder\TestCase;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidOrderByException;
 
 class ODMOrderByTest extends TestCase
 {
@@ -95,5 +96,35 @@ class ODMOrderByTest extends TestCase
             $this->assertEquals('Two', $meta->getName());
             break;
         }
+    }
+
+    public function testFieldFailsGracefullyWithInvalidDirection()
+    {
+        $this->expectException(InvalidOrderByException::class);
+
+        $orderBy = [
+            [
+                'type' => 'field',
+                'field' => 'name',
+                'direction' => 'invalid',
+            ],
+        ];
+
+        $result = $this->fetchResult($orderBy);
+    }
+
+    public function testManagerFailsGracefullyWithInvalidType()
+    {
+        $this->expectException(InvalidOrderByException::class);
+
+        $orderBy = [
+            [
+                'type' => '',
+                'field' => 'invalid',
+                'direction' => 'desc',
+            ],
+        ];
+
+        $result = $this->fetchResult($orderBy);
     }
 }

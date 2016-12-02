@@ -7,10 +7,10 @@
 namespace ZF\Doctrine\QueryBuilder\OrderBy\Service;
 
 use Doctrine\ODM\MongoDB\Query\Builder as QueryBuilder;
-use RuntimeException;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception;
 use ZF\Doctrine\QueryBuilder\OrderBy\OrderByInterface;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidOrderByException;
 
 class ODMOrderByManager extends AbstractPluginManager
 {
@@ -22,8 +22,16 @@ class ODMOrderByManager extends AbstractPluginManager
     public function orderBy(QueryBuilder $queryBuilder, $metadata, $orderBy)
     {
         foreach ($orderBy as $option) {
-            if (empty($option['type'])) {
-                throw new RuntimeException('Array element "type" is required for all orderby directives');
+            if (! isset($option['type']) || empty($option['type'])) {
+                if ($option['field']) {
+                    throw new InvalidOrderByException(
+                        'Order-by element "type" is missing for field [' . $option['field'] . ']'
+                    );
+                }
+
+                throw new InvalidOrderByException(
+                    'Order-by element "type" is required for all orderby directives'
+                );
             }
 
             $orderByHandler = $this->get(strtolower($option['type']), [$this]);

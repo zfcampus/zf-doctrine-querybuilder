@@ -6,7 +6,7 @@
 
 namespace ZF\Doctrine\QueryBuilder\OrderBy\ORM;
 
-use Exception;
+use ZF\Doctrine\QueryBuilder\Exception\InvalidOrderByException;
 
 class Field extends AbstractOrderBy
 {
@@ -17,7 +17,15 @@ class Field extends AbstractOrderBy
         }
 
         if (! isset($option['direction']) || ! in_array(strtolower($option['direction']), ['asc', 'desc'])) {
-            throw new Exception('Invalid direction in orderby directive');
+            throw new InvalidOrderByException(
+                'Invalid direction in order-by directive for field [' . $option['field'] . ']'
+            );
+        }
+
+        if ($option['alias'] == 'row' && ! isset($metadata->fieldMappings[$option['field']])) {
+            throw new InvalidOrderByException(
+                'Invalid field [' . $option['field'] . '] in orderby directive'
+            );
         }
 
         $queryBuilder->addOrderBy($option['alias'] . '.' . $option['field'], $option['direction']);
