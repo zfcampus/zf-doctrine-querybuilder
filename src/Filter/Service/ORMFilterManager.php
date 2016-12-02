@@ -22,8 +22,13 @@ class ORMFilterManager extends AbstractPluginManager
     public function filter(QueryBuilder $queryBuilder, $metadata, $filters)
     {
         foreach ($filters as $option) {
-            if (empty($option['type'])) {
-                throw new InvalidFilterException('Array element "type" is required for all filters');
+            if (! isset($option['type']) || empty($option['type'])) {
+                if ($option['field']) {
+                    throw new InvalidFilterException(
+                        'Filter element "type" is missing for field [' . $option['field'] . ']'
+                    );
+                }
+                throw new InvalidFilterException('Filter element "type" is required for all filters');
             }
 
             $filter = $this->get(strtolower($option['type']), [$this]);

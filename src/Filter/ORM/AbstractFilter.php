@@ -41,7 +41,7 @@ abstract class AbstractFilter implements FilterInterface
         }
 
         if (! isset($metadata->fieldMappings[$field])) {
-            throw new InvalidFilterException('Invalid field in filter directive');
+            throw new InvalidFilterException('Field [' . $field . '] does not exist on target entity.');
         }
 
         switch ($metadata->fieldMappings[$field]['type']) {

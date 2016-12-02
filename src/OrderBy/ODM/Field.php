@@ -13,7 +13,9 @@ class Field extends AbstractOrderBy
     public function orderBy($queryBuilder, $metadata, $option)
     {
         if (! isset($option['direction']) || ! in_array(strtolower($option['direction']), ['asc', 'desc'])) {
-            throw new InvalidOrderByException('Invalid direction in orderby directive');
+            throw new InvalidOrderByException(
+                'Invalid direction in order-by directive for field [' . $option['field'] . ']'
+            );
         }
 
         $queryBuilder->sort($option['field'], $option['direction']);

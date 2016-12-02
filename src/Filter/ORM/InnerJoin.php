@@ -17,7 +17,9 @@ class InnerJoin extends AbstractFilter
         }
 
         if (! isset($option['alias']) || ! $option['alias']) {
-            throw new InvalidFilterException('Alias must be specified for inner join');
+            throw new InvalidFilterException(
+                'Alias for field [' . $option['field'] . '] must be specified for inner join'
+            );
         }
 
         if (! isset($option['parentAlias']) || ! $option['parentAlias']) {
@@ -25,11 +27,15 @@ class InnerJoin extends AbstractFilter
         }
 
         if (! isset($option['conditionType']) && isset($option['condition'])) {
-            throw new InvalidFilterException('A conditionType must be specified for a condition');
+            throw new InvalidFilterException(
+                'A conditionType for field [' . $option['field'] . '] must be specified for a condition'
+            );
         }
 
         if (! isset($option['condition']) && isset($option['conditionType'])) {
-            throw new InvalidFilterException('A condition must be specified for a conditionType');
+            throw new InvalidFilterException(
+                'A condition for field [' . $option['field'] . '] must be specified for a conditionType'
+            );
         }
 
         if (! isset($option['conditionType'])) {
