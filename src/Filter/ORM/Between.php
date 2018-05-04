@@ -26,10 +26,13 @@ class Between extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        [$typeCastMetaData, $typeCastFieldName] = $this->getTypeCastParams($queryBuilder, $metadata, $option['field'], $option['alias']);
+        $fieldType = $typeCastMetaData->getTypeOfField($typeCastFieldName);
+
         $format = isset($option['format']) ? $option['format'] : null;
 
-        $from = $this->typeCastField($metadata, $option['field'], $option['from'], $format);
-        $to = $this->typeCastField($metadata, $option['field'], $option['to'], $format);
+        $from = $this->typeCastField($typeCastMetaData, $typeCastFieldName, $option['from'], $format);
+        $to = $this->typeCastField($typeCastMetaData, $typeCastFieldName, $option['to'], $format);
 
         $fromParameter = uniqid('a1');
         $toParameter = uniqid('a2');
@@ -43,7 +46,7 @@ class Between extends AbstractFilter
                     sprintf(':%s', $toParameter)
                 )
         );
-        $queryBuilder->setParameter($fromParameter, $from);
-        $queryBuilder->setParameter($toParameter, $to);
+        $queryBuilder->setParameter($fromParameter, $from, $fieldType);
+        $queryBuilder->setParameter($toParameter, $to, $fieldType);
     }
 }

@@ -26,13 +26,16 @@ class In extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        [$typeCastMetaData, $typeCastFieldName] = $this->getTypeCastParams($queryBuilder, $metadata, $option['field'], $option['alias']);
+        $fieldType = $typeCastMetaData->getTypeOfField($typeCastFieldName);
+
         $format = isset($option['format']) ? $option['format'] : null;
 
         $queryValues = [];
         foreach ($option['values'] as $value) {
             $queryValues[] = $this->typeCastField(
-                $metadata,
-                $option['field'],
+                $typeCastMetaData,
+                $typeCastFieldName,
                 $value,
                 $format,
                 $doNotTypecastDatetime = true
@@ -45,6 +48,6 @@ class In extends AbstractFilter
                 ->expr()
                 ->in($option['alias'] . '.' . $option['field'], ':' . $parameter)
         );
-        $queryBuilder->setParameter($parameter, $queryValues);
+        $queryBuilder->setParameter($parameter, $queryValues, $fieldType);
     }
 }

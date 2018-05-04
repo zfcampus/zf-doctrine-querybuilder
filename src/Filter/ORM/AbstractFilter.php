@@ -86,4 +86,50 @@ abstract class AbstractFilter implements FilterInterface
 
         return $value;
     }
+
+    protected function getTypeCastParams($queryBuilder, $metadata, $fieldName, $alias)
+    {
+        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\ORM\QueryBuilder $queryBuilder */
+        /** @var \Doctrine\ORM\Query\Expr\Join $joinObj */
+        $typeCastMetaData = $this->getMetadataForAlias($queryBuilder, $metadata, $alias);
+        if ($typeCastMetaData->hasField($fieldName)) {
+            $typeCastFieldName = $fieldName;
+        } else {
+            $typeCastFieldName = $typeCastMetaData->getSingleAssociationReferencedJoinColumnName($fieldName); //remote
+            $typeCastMetaData = $queryBuilder->getEntityManager()->getMetadataFactory()->getMetadataFor(
+                $typeCastMetaData->getAssociationTargetClass($fieldName)
+            );
+        }
+
+        return [$typeCastMetaData, $typeCastFieldName];
+    }
+
+    protected function getMetadataForAlias($queryBuilder, $metadata, $alias)
+    {
+        /** @var \Doctrine\ORM\Mapping\ClassMetadata $metadata */
+        /** @var \Doctrine\ORM\QueryBuilder $queryBuilder */
+        /** @var \Doctrine\ORM\Query\Expr\Join $joinObj */
+        $joinObj = null;
+        foreach ($queryBuilder->getDQLPart('join') as $joinPart) {
+            /** @var \Doctrine\ORM\Query\Expr\Join $obj */
+            foreach ($joinPart as $obj) {
+                if ($obj->getAlias() == $alias) {
+                    $joinObj = $obj;
+                    break 2;
+                }
+            }
+        }
+
+        if ($joinObj) {
+            [$parentAlias, $joinField] = explode('.', $joinObj->getJoin());
+            $parentMetadata = $this->getMetadataForAlias($queryBuilder, $metadata, $parentAlias);
+
+            return $queryBuilder->getEntityManager()->getMetadataFactory()->getMetadataFor(
+                $parentMetadata->getAssociationTargetClass($joinField)
+            );
+        } else {
+            return $metadata;
+        }
+    }
 }

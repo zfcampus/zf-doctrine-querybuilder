@@ -31,12 +31,15 @@ class IsMemberOf extends AbstractFilter
             $option['alias'] = 'row';
         }
 
+        [$typeCastMetaData, $typeCastFieldName] = $this->getTypeCastParams($queryBuilder, $metadata, $option['field'], $option['alias']);
+        $fieldType = $typeCastMetaData->getTypeOfField($typeCastFieldName);
+
         $format = null;
         if (isset($option['format'])) {
             $format = $option['format'];
         }
 
-        $value = $this->typeCastField($metadata, $option['field'], $option['value'], $format);
+        $value = $this->typeCastField($typeCastMetaData, $typeCastFieldName, $option['value'], $format);
 
         $parameter = uniqid('a');
         $queryBuilder->$queryType(
@@ -44,6 +47,6 @@ class IsMemberOf extends AbstractFilter
                 ->expr()
                 ->isMemberOf(':' . $parameter, $option['alias'] . '.' . $option['field'])
         );
-        $queryBuilder->setParameter($parameter, $value);
+        $queryBuilder->setParameter($parameter, $value, $fieldType);
     }
 }
