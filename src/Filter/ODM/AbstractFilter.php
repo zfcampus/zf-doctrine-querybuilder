@@ -6,8 +6,8 @@
 
 namespace ZF\Doctrine\QueryBuilder\Filter\ODM;
 
-use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 use DateTime;
+use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 
 abstract class AbstractFilter implements FilterInterface
 {

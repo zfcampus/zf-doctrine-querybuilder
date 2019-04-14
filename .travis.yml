@@ -1,40 +1,96 @@
-sudo: false
-
 language: php
 
 services:
   - mongodb
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+env:
+  global:
+    - COMPOSER_ARGS="--no-interaction"
+    - ADAPTER_DEPS="alcaeus/mongo-php-adapter"
+    - COVERAGE_DEPS="php-coveralls/php-coveralls"
+    - MONGO_DRIVER=mongodb
+
 matrix:
-  fast_finish: true
   include:
-    - php: 5.5
-      env:
-        EXECUTE_CS_CHECK=true
-        INSTALL_PECL_MONGO=true
     - php: 5.6
       env:
-        EXECUTE_COVERAGE=true
-        INSTALL_PECL_MONGO=true
+        - DEPS=lowest
+        - MONGO_DRIVER=mongo
+    - php: 5.6
+      env:
+        - DEPS=locked
+        - LEGACY_DEPS="doctrine/doctrine-module doctrine/doctrine-mongo-odm-module doctrine/doctrine-orm-module phpunit/phpunit symfony/yaml zendframework/zend-hydrator zfcampus/zf-apigility-doctrine"
+        - MONGO_DRIVER=mongo
+    - php: 5.6
+      env:
+        - DEPS=latest
+        - MONGO_DRIVER=mongo
     - php: 7
-    - php: hhvm
-  allow_failures:
+      env:
+        - DEPS=lowest
     - php: 7
-    - php: hhvm
-
-notifications:
-  irc: "irc.freenode.org#apigility-dev"
-  email: false
+      env:
+        - DEPS=locked
+        - LEGACY_DEPS="doctrine/doctrine-module doctrine/doctrine-mongo-odm-module doctrine/doctrine-orm-module phpunit/phpunit symfony/yaml zendframework/zend-hydrator zfcampus/zf-apigility-doctrine"
+    - php: 7
+      env:
+        - DEPS=latest
+    - php: 7.1
+      env:
+        - DEPS=lowest
+    - php: 7.1
+      env:
+        - DEPS=locked
+        - LEGACY_DEPS="zendframework/zend-hydrator"
+        - CS_CHECK=true
+        - TEST_COVERAGE=true
+    - php: 7.1
+      env:
+        - DEPS=latest
+    - php: 7.2
+      env:
+        - DEPS=lowest
+    - php: 7.2
+      env:
+        - DEPS=locked
+    - php: 7.2
+      env:
+        - DEPS=latest
+    # Disabled because some lowest dependencies are not compatible with PHP 7.3
+    # - php: 7.3
+    #   env:
+    #     - DEPS=lowest
+    - php: 7.3
+      env:
+        - DEPS=locked
+    - php: 7.3
+      env:
+        - DEPS=latest
 
 before_install:
-  - if [[ $EXECUTE_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
-  - if [[ $INSTALL_PECL_MONGO == 'true' ]]; then pecl install -f mongo-1.4.1 || return 0 ; fi
-  - composer self-update
+  - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
-  - travis_retry composer install --no-interaction --ignore-platform-reqs --prefer-source --dev
+  - yes '' | pecl -q install -f $MONGO_DRIVER
+  - composer config platform.ext-mongo '1.999'
+  - travis_retry composer install $COMPOSER_ARGS --ignore-platform-reqs
+  - if [[ $LEGACY_DEPS != '' ]]; then travis_retry composer update $COMPOSER_ARGS --with-dependencies $LEGACY_DEPS ; fi
+  - if [[ $DEPS == 'latest' ]]; then travis_retry composer update $COMPOSER_ARGS ; fi
+  - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
+  - if [[ $MONGO_DRIVER == 'mongodb' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $ADAPTER_DEPS ; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COVERAGE_DEPS ; fi
+  - stty cols 120 && composer show
 
 script:
-  - mkdir -p build/logs
-  - ./vendor/bin/phpunit
-  - if [[ $EXECUTE_CS_CHECK == 'true' ]]; then ./vendor/bin/phpcs --standard=PSR2 --ignore=test/Bootstrap.php src test; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else composer test ; fi
+  - if [[ $CS_CHECK == 'true' ]]; then composer cs-check ; fi
+
+after_script:
+  - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry php vendor/bin/php-coveralls -v ; fi
+
+notifications:
+  email: false

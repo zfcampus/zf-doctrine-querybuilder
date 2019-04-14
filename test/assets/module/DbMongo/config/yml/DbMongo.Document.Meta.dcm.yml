@@ -1,0 +1,14 @@
+DbMongo\Document\Meta:
+  db: zf_doctrine_querybuilder_filter_test
+  collection: meta
+  repositoryClass: DbMongo\Repository\MetaRepository
+  fields:
+    id:
+      id: true
+    name:
+      type: string
+    description:
+      type: string
+      nullable: true
+    createdAt:
+      type: date

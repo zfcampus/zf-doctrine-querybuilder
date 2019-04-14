@@ -6,49 +6,67 @@
 
 namespace ZF\Doctrine\QueryBuilder\Filter\Service;
 
-use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
+use Doctrine\ORM\QueryBuilder;
+use RuntimeException;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception;
-use Doctrine\ORM\QueryBuilder;
+use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 
 class ORMFilterManager extends AbstractPluginManager
 {
-    protected $invokableClasses = array();
+    /**
+     * @var string
+     */
+    protected $instanceOf = FilterInterface::class;
 
     public function filter(QueryBuilder $queryBuilder, $metadata, $filters)
     {
         foreach ($filters as $option) {
-            if (! isset($option['type']) or ! $option['type']) {
-                // @codeCoverageIgnoreStart
-                throw new Exception\RuntimeException('Array element "type" is required for all filters');
+            if (empty($option['type'])) {
+                throw new RuntimeException('Array element "type" is required for all filters');
             }
-            // @codeCoverageIgnoreEnd
 
-            $filter = $this->get(strtolower($option['type']), array($this));
-
+            $filter = $this->get(strtolower($option['type']), [$this]);
             $filter->filter($queryBuilder, $metadata, $option);
         }
     }
 
     /**
-     * @param mixed $filter
+     * Validate the plugin is of the expected type (v3).
      *
+     * Validates against `$instanceOf`.
+     *
+     * @param mixed $instance
      * @return void
-     * @throws Exception\RuntimeException
+     * @throws Exception\InvalidServiceException
      */
-    public function validatePlugin($filter)
+    public function validate($instance)
     {
-        if ($filter instanceof FilterInterface) {
-            // we're okay
-            return;
+        if (! $instance instanceof $this->instanceOf) {
+            throw new Exception\InvalidServiceException(sprintf(
+                '%s can only create instances of %s; %s is invalid',
+                get_class($this),
+                $this->instanceOf,
+                is_object($instance) ? get_class($instance) : gettype($instance)
+            ));
         }
+    }
 
-        // @codeCoverageIgnoreStart
-        throw new Exception\RuntimeException(sprintf(
-            'Plugin of type %s is invalid; must implement %s\Plugin\PluginInterface',
-            (is_object($filter) ? get_class($filter) : gettype($filter)),
-            __NAMESPACE__
-        ));
-        // @codeCoverageIgnoreEnd
+    /**
+     * Validate the plugin is of the expected type (v2).
+     *
+     * Proxies to `validate()`.
+     *
+     * @param mixed $instance
+     * @return void
+     * @throws Exception\InvalidArgumentException
+     */
+    public function validatePlugin($instance)
+    {
+        try {
+            $this->validate($instance);
+        } catch (Exception\InvalidServiceException $e) {
+            throw new Exception\InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 }

@@ -66,7 +66,7 @@ abstract class AbstractFilter implements FilterInterface
                 break;
             case 'time':
                 if ($value && ! $doNotTypecastDatetime) {
-                    if (!$format) {
+                    if (! $format) {
                         $format = 'H:i:s';
                     }
                     $value = DateTime::createFromFormat($format, $value);

@@ -10,5 +10,5 @@ use Zend\Mvc\Service\AbstractPluginManagerFactory;
 
 class ODMOrderByManagerFactory extends AbstractPluginManagerFactory
 {
-    const PLUGIN_MANAGER_CLASS = 'ZF\Doctrine\QueryBuilder\OrderBy\Service\ODMOrderByManager';
+    const PLUGIN_MANAGER_CLASS = ODMOrderByManager::class;
 }

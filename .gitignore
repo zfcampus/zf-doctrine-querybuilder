@@ -10,3 +10,6 @@ test/build
 .project
 .settings/
 .idea
+phpunit.xml
+clover.xml
+coveralls-upload.json

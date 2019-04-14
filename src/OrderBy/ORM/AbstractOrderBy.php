@@ -6,7 +6,6 @@
 
 namespace ZF\Doctrine\QueryBuilder\OrderBy\ORM;
 
-use DateTime;
 use ZF\Doctrine\QueryBuilder\OrderBy\OrderByInterface;
 use ZF\Doctrine\QueryBuilder\OrderBy\Service\ORMOrderByManager;
 

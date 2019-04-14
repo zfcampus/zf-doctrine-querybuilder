@@ -18,11 +18,11 @@ class Equals extends AbstractFilter
             }
         }
 
-        if (!isset($queryType)) {
+        if (! isset($queryType)) {
             $queryType = 'andWhere';
         }
 
-        if (!isset($option['alias'])) {
+        if (! isset($option['alias'])) {
             $option['alias'] = 'row';
         }
 

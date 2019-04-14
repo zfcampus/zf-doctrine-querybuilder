@@ -19,6 +19,6 @@ class IsNotNull extends AbstractFilter
             }
         }
 
-        $queryBuilder->$queryType($queryBuilder->expr()->field($option['field'])->exists(true));
+        $queryBuilder->$queryType($queryBuilder->expr()->field($option['field'])->notEqual(null));
     }
 }
