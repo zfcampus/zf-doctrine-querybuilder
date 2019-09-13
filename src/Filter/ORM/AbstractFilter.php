@@ -6,9 +6,9 @@
 
 namespace ZF\Doctrine\QueryBuilder\Filter\ORM;
 
-use DateTime;
 use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 use ZF\Doctrine\QueryBuilder\Filter\Service\ORMFilterManager;
+use ZF\Doctrine\QueryBuilder\Filter\TypeCastInterface;
 
 abstract class AbstractFilter implements FilterInterface
 {
@@ -16,9 +16,14 @@ abstract class AbstractFilter implements FilterInterface
 
     protected $filterManager;
 
+    protected $typeCaster;
+
     public function __construct($params)
     {
         $this->setFilterManager($params[0]);
+        if (isset($params[1])) {
+            $this->setTypeCaster($params[1]);
+        }
     }
 
     public function setFilterManager(ORMFilterManager $filterManager)
@@ -32,58 +37,23 @@ abstract class AbstractFilter implements FilterInterface
         return $this->filterManager;
     }
 
+    public function getTypeCaster()
+    {
+        if ($this->typeCaster === null) {
+            $this->typeCaster = new TypeCaster();
+        }
+
+        return $this->typeCaster;
+    }
+
+    public function setTypeCaster(TypeCastInterface $typeCaster)
+    {
+        $this->typeCaster = $typeCaster;
+        return $this;
+    }
+
     protected function typeCastField($metadata, $field, $value, $format, $doNotTypecastDatetime = false)
     {
-        if (! isset($metadata->fieldMappings[$field])) {
-            return $value;
-        }
-
-        switch ($metadata->fieldMappings[$field]['type']) {
-            case 'string':
-                settype($value, 'string');
-                break;
-            case 'integer':
-            case 'smallint':
-            #case 'bigint':  // Don't try to manipulate bigints?
-                settype($value, 'integer');
-                break;
-            case 'boolean':
-                settype($value, 'boolean');
-                break;
-            case 'decimal':
-            case 'float':
-                settype($value, 'float');
-                break;
-            case 'date':
-                // For dates set time to midnight
-                if ($value && ! $doNotTypecastDatetime) {
-                    if (! $format) {
-                        $format = 'Y-m-d';
-                    }
-                    $value = DateTime::createFromFormat($format, $value);
-                    $value = DateTime::createFromFormat('Y-m-d H:i:s', $value->format('Y-m-d') . ' 00:00:00');
-                }
-                break;
-            case 'time':
-                if ($value && ! $doNotTypecastDatetime) {
-                    if (! $format) {
-                        $format = 'H:i:s';
-                    }
-                    $value = DateTime::createFromFormat($format, $value);
-                }
-                break;
-            case 'datetime':
-                if ($value && ! $doNotTypecastDatetime) {
-                    if (! $format) {
-                        $format = 'Y-m-d H:i:s';
-                    }
-                    $value = DateTime::createFromFormat($format, $value);
-                }
-                break;
-            default:
-                break;
-        }
-
-        return $value;
+        return $this->getTypeCaster()->typeCastField($metadata, $field, $value, $format, $doNotTypecastDatetime);
     }
 }
