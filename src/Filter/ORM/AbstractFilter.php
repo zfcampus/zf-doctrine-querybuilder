@@ -7,6 +7,7 @@
 namespace ZF\Doctrine\QueryBuilder\Filter\ORM;
 
 use DateTime;
+use DateTimeImmutable;
 use ZF\Doctrine\QueryBuilder\Filter\FilterInterface;
 use ZF\Doctrine\QueryBuilder\Filter\Service\ORMFilterManager;
 
@@ -64,6 +65,16 @@ abstract class AbstractFilter implements FilterInterface
                     $value = DateTime::createFromFormat('Y-m-d H:i:s', $value->format('Y-m-d') . ' 00:00:00');
                 }
                 break;
+            case 'date_immutable':
+                // For dates set time to midnight
+                if ($value && ! $doNotTypecastDatetime) {
+                    if (! $format) {
+                        $format = 'Y-m-d';
+                    }
+                    $value = DateTimeImmutable::createFromFormat($format, $value);
+                    $value = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $value->format('Y-m-d') . ' 00:00:00');
+                }
+                break;
             case 'time':
                 if ($value && ! $doNotTypecastDatetime) {
                     if (! $format) {
@@ -72,12 +83,28 @@ abstract class AbstractFilter implements FilterInterface
                     $value = DateTime::createFromFormat($format, $value);
                 }
                 break;
+            case 'time_immutable':
+                if ($value && ! $doNotTypecastDatetime) {
+                    if (! $format) {
+                        $format = 'H:i:s';
+                    }
+                    $value = DateTimeImmutable::createFromFormat($format, $value);
+                }
+                break;
             case 'datetime':
                 if ($value && ! $doNotTypecastDatetime) {
                     if (! $format) {
                         $format = 'Y-m-d H:i:s';
                     }
                     $value = DateTime::createFromFormat($format, $value);
+                }
+                break;
+            case 'datetime_immutable':
+                if ($value && ! $doNotTypecastDatetime) {
+                    if (! $format) {
+                        $format = 'Y-m-d H:i:s';
+                    }
+                    $value = DateTimeImmutable::createFromFormat($format, $value);
                 }
                 break;
             default:
