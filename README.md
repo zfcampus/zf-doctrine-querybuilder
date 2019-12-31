@@ -1,6 +1,10 @@
 ZF Doctrine QueryBuilder
 ========================
 
+> ## Repository abandoned 2019-12-31
+>
+> This repository has moved to laminas-api-tools/api-tools-doctrine-querybuilder.
+
 [![Build Status](https://travis-ci.org/zfcampus/zf-doctrine-querybuilder.svg?branch=master)](https://travis-ci.org/zfcampus/zf-doctrine-querybuilder)
 [![Coverage Status](https://coveralls.io/repos/github/zfcampus/zf-doctrine-querybuilder/badge.svg?branch=master)](https://coveralls.io/github/zfcampus/zf-doctrine-querybuilder?branch=master)
 [![Total Downloads](https://poser.pugx.org/zfcampus/zf-doctrine-querybuilder/downloads)](https://packagist.org/packages/zfcampus/zf-doctrine-querybuilder)
