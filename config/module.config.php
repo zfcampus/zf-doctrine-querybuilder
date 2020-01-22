@@ -6,6 +6,8 @@
 
 namespace ZF\Doctrine\QueryBuilder;
 
+use Zend\ServiceManager\Factory\InvokableFactory;
+
 return [
     'service_manager' => [
         'aliases' => [
@@ -19,6 +21,8 @@ return [
             Filter\Service\ODMFilterManager::class => Filter\Service\ODMFilterManagerFactory::class,
             OrderBy\Service\ORMOrderByManager::class => OrderBy\Service\ORMOrderByManagerFactory::class,
             OrderBy\Service\ODMOrderByManager::class => OrderBy\Service\ODMOrderByManagerFactory::class,
+            Filter\ORM\TypeCaster::class => InvokableFactory::class,
+            Filter\ODM\TypeCaster::class => InvokableFactory::class,
         ],
     ],
 ];
